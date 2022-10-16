@@ -8,8 +8,10 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@solana/wallet-adapter-wallets": "^0.19.2",
     "ant-design-vue": "^3.2.13",
     "core-js": "^3.8.3",
+    "solana-wallets-vue": "^0.4.5",
     "vue": "^3.2.13"
   },
   "devDependencies": {
