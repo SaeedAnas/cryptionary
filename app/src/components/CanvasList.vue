@@ -33,9 +33,7 @@ export default {
   data(){
     return{
         list : [
-            {url:'https://i.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U', typeText:'', originalText:'', wrongGuesses:0},
-            {url:'https://i.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U', typeText:'', originalText:'', wrongGuesses:0}, 
-            {url:'https://i.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U', typeText:'', originalText:'', wrongGuesses:0}
+            {url:'http://127.0.0.1:8080/ipfs/QmQ81NTDioa97su74CnCr4Bvoy9iqxb3CVALhQQs1R2CDZ', typeText:'', originalText:'', wrongGuesses:0},
         ]
     }
   }

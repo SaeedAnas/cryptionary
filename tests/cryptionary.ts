@@ -12,7 +12,7 @@ describe("cryptionary", () => {
   it("Is initialized!", async () => {
     const post = anchor.web3.Keypair.generate();
 
-    await program.rpc.sendPost("Aple", {
+    await program.rpc.sendPost("Apple", "testhash", {
       accounts: {
         post: post.publicKey,
         author: program.provider.wallet.publicKey,
@@ -24,7 +24,7 @@ describe("cryptionary", () => {
 
   it("can send a new post", async () => {
     const post = anchor.web3.Keypair.generate();
-    await program.rpc.sendPost("Apple", {
+    await program.rpc.sendPost("Apple", "testhash", {
       accounts: {
         post: post.publicKey,
         author: program.provider.wallet.publicKey,
@@ -51,7 +51,7 @@ describe("cryptionary", () => {
     await program.provider.connection.confirmTransaction(signature);
     const post = anchor.web3.Keypair.generate();
 
-    await program.rpc.sendPost("apple", {
+    await program.rpc.sendPost("apple", "testhash", {
       accounts: {
         post: post.publicKey,
         author: otherUser.publicKey,
@@ -65,26 +65,54 @@ describe("cryptionary", () => {
     assert.equal(postAccount.correctGuess, "apple");
   });
 
-  it('can fetch all tweets', async () => {
-    const postAccounts = await program.account.post.all()
+  it("can fetch all tweets", async () => {
+    const postAccounts = await program.account.post.all();
     assert.equal(postAccounts.length, 3);
-  })
+  });
 
-it('can filter posts by author', async () => {
-  const authorPublicKey = program.provider.wallet.publicKey
-  const postAccounts = await program.account.post.all([
-    {
-      memcmp: {
-        offset: 8,
-        bytes: authorPublicKey.toBase58(),
-      }
-    }
-  ])
+  it("can filter posts by author", async () => {
+    const authorPublicKey = program.provider.wallet.publicKey;
+    const postAccounts = await program.account.post.all([
+      {
+        memcmp: {
+          offset: 8,
+          bytes: authorPublicKey.toBase58(),
+        },
+      },
+    ]);
 
     assert.equal(postAccounts.length, 2);
-    assert.ok(postAccounts.every(postAccount => {
-      return postAccount.account.author.toBase58() === authorPublicKey.toBase58()
-    }))
-})
-});
+    assert.ok(
+      postAccounts.every((postAccount) => {
+        return (
+          postAccount.account.author.toBase58() === authorPublicKey.toBase58()
+        );
+      })
+    );
+  });
 
+  it("can guess account", async () => {
+    const postAccounts = await program.account.post.all();
+    const otherUser = anchor.web3.Keypair.generate();
+    const signature = await program.provider.connection.requestAirdrop(
+      otherUser.publicKey,
+      1000000000
+    );
+    await program.provider.connection.confirmTransaction(signature);
+    const post = anchor.web3.Keypair.generate();
+
+    const account = postAccounts[0];
+    console.log(account);
+
+    program.rpc.guess("Apple", {
+      accounts: {
+        post: post.publicKey,
+        author: otherUser.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      },
+      signers: [otherUser, post],
+    });
+    const pa = await program.account.post.all();
+    console.log(pa);
+  });
+});

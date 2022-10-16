@@ -12,7 +12,11 @@ pub mod cryptionary {
         Ok(())
     }
 
-    pub fn send_post(ctx: Context<SendPost>, correct_guess: String) -> Result<()> {
+    pub fn send_post(
+        ctx: Context<SendPost>,
+        correct_guess: String,
+        img_hash: String,
+    ) -> Result<()> {
         let post: &mut Account<Post> = &mut ctx.accounts.post;
         let author: &Signer = &ctx.accounts.author;
         let clock: Clock = Clock::get().unwrap();
@@ -24,7 +28,27 @@ pub mod cryptionary {
         post.author = *author.key;
         post.timestamp = clock.unix_timestamp;
         post.correct_guess = correct_guess;
+        post.is_solved = false;
+        post.image_hash = img_hash;
 
+        Ok(())
+    }
+
+    pub fn guess(ctx: Context<SendPost>, guess: String) -> Result<()> {
+        let post: &mut Account<Post> = &mut ctx.accounts.post;
+        let author: &Signer = &ctx.accounts.author;
+        post.num_incorrect = post.num_incorrect + 1;
+        println!("{:?}", post.key());
+
+        // if post.is_same(&author.key()) {
+        //     return Err(ErrorCode::DuplicateUser.into());
+        // }
+
+        // if &guess != &post.correct_guess {
+        //     post.increment();
+        // } else {
+        //     post.solved();
+        // }
         Ok(())
     }
 }
@@ -39,7 +63,7 @@ pub struct Post {
     pub correct_guess: String,
     pub num_incorrect: i32,
     pub is_solved: bool,
-    // TODO: image_hash
+    pub image_hash: String,
 }
 
 // 2. Add some useful constants for sizing propeties.
@@ -50,7 +74,7 @@ const COUNTER_LENGTH: usize = 4;
 const STRING_LENGTH_PREFIX: usize = 4; // Stores the size of the string.
 const BOOL_LENGTH: usize = 1;
 const MAX_GUESS_LENGTH: usize = 50 * 4; // 50 chars max.
-
+const HASH_LENGTH: usize = 50 * 4;
 // 3. Add a constant on the Tweet account that provides its total size.
 impl Post {
     const LEN: usize = DISCRIMINATOR_LENGTH
@@ -58,7 +82,20 @@ impl Post {
         + TIMESTAMP_LENGTH // Timestamp.
         + STRING_LENGTH_PREFIX + MAX_GUESS_LENGTH // Guess
         + COUNTER_LENGTH // Guess counter
-        + BOOL_LENGTH; // Is_solved
+        + BOOL_LENGTH // Is_solved
+        + STRING_LENGTH_PREFIX + HASH_LENGTH;
+
+    fn increment(&mut self) {
+        self.num_incorrect += 1;
+    }
+
+    fn solved(&mut self) {
+        self.is_solved = true;
+    }
+
+    fn is_same(&self, key: &Pubkey) -> bool {
+        return key == &self.author.key();
+    }
 }
 
 #[derive(Accounts)]
@@ -76,6 +113,8 @@ pub struct SendPost<'info> {
 pub enum ErrorCode {
     #[msg("The provided topic should be 50 characters long maximum.")]
     TopicTooLong,
-    #[msg("The provided content should be 280 characters long maximum.")]
-    ContentTooLong,
+    #[msg("The provided guess is too long!")]
+    GuessTooLong,
+    #[msg("Same User Cannot Guess!")]
+    DuplicateUser,
 }
