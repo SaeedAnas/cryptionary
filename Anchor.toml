@@ -2,12 +2,14 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-cryptionary = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+# cryptionary = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+cryptionary = "BcLbLvDiJRwsfDb7sPpmUqd3Z7w3i4CFunMyk7me3D2X"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
+url = "https://127.0.0.1:8899"
 cluster = "localnet"
 wallet = "/Users/anas/.config/solana/id.json"
 
